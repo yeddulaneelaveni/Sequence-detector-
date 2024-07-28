@@ -1,0 +1,68 @@
+module sequence_detector (
+  input wire clk,
+  input wire rst,
+  input wire in,
+  output reg out
+);
+
+  // State encoding
+  parameter [2:0] s0 = 3'b000;
+  parameter [2:0] s1 = 3'b001;
+  parameter [2:0] s2 = 3'b010;
+  parameter [2:0] s3 = 3'b011;
+
+  reg [2:0] current_state, next_state;
+
+  // State transition logic
+  always @(posedge clk or posedge rst) begin
+    if (rst) begin
+      current_state <= s0;
+    end else begin
+      current_state <= next_state;
+    end
+  end
+
+  // Next state and output logic
+  always @(*) begin
+    // Default assignments
+    next_state = current_state;
+    out = 1'b0;
+
+    case (current_state)
+      s0: begin
+        if (in) begin
+          next_state = s1;
+        end
+      end
+      
+      s1: begin
+        if (in) begin
+          next_state = s1;
+        end else begin
+          next_state = s2;
+        end
+      end
+
+      s2: begin
+        if (in) begin
+          next_state = s3;
+        end else begin
+          next_state = s0;
+        end
+      end
+
+      s3: begin
+        if (in) begin
+          next_state = s1;
+          out = 1'b1;
+        end else begin
+          next_state = s2;
+        end
+      end
+
+      default: begin
+        next_state = s0;
+      end
+    endcase
+  end
+endmodule
